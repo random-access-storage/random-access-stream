@@ -16,7 +16,12 @@ stream.pipe(process.stdout)
 
 ## API
 
-### Stream(store)
+### Stream(store[, opts])
+
+Options:
+
+- `start=0` The byte offset at which to start reading
+- `end=Infinity` The byte offset at which to end reading
 
 ## License
 
