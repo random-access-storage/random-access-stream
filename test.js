@@ -27,3 +27,14 @@ test('random-access-file', function (t) {
     t.end()
   })
 })
+
+test('start, end', function (t) {
+  var buf = Buffer('Hello cruel world')
+  var stream = Stream(ram(buf), { start: 1, end: buf.length - 1 })
+  collect(stream, function (err, _buf) {
+    t.error(err)
+    t.deepEqual(_buf, buf.slice(1, buf.length - 1))
+    t.end()
+  })
+})
+
