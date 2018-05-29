@@ -1,40 +1,77 @@
-'use strict'
+const tape = require('tape')
+const ram = require('random-access-memory')
+const createStream = require('./')
 
-var test = require('tape')
-var Stream = require('.')
-var ram = require('random-access-memory')
-var raf = require('random-access-file')
-var collect = require('collect-stream')
-var fs = require('fs')
-var join = require('path').join
+tape('small buf', function (t) {
+  const buf = Buffer.alloc(1000).fill('abc')
+  const st = ram(buf)
+  const output = []
 
-test('random-access-memory', function (t) {
-  var buf = Buffer('Hello cruel world')
-  var stream = Stream(ram(buf))
-  collect(stream, function (err, _buf) {
-    t.error(err)
-    t.deepEqual(_buf, buf)
-    t.end()
-  })
+  createStream(st)
+    .on('data', function (data) {
+      output.push(data)
+    })
+    .on('end', function () {
+      t.same(buf, Buffer.concat(output))
+      t.end()
+    })
 })
 
-test('random-access-file', function (t) {
-  var file = join(__dirname, 'index.js')
-  var stream = Stream(raf(file))
-  collect(stream, function (err, buf) {
-    t.error(err)
-    t.deepEqual(buf, fs.readFileSync(file))
-    t.end()
-  })
+tape('empty buf', function (t) {
+  const buf = Buffer.alloc(0)
+  const st = ram(buf)
+  const output = []
+
+  createStream(st)
+    .on('data', function (data) {
+      output.push(data)
+    })
+    .on('end', function () {
+      t.same(buf, Buffer.concat(output))
+      t.end()
+    })
+})
+tape('bigger buf', function (t) {
+  const buf = Buffer.alloc(20 * 65536).fill('abc')
+  const st = ram(buf)
+  const output = []
+
+  createStream(st)
+    .on('data', function (data) {
+      output.push(data)
+    })
+    .on('end', function () {
+      t.same(buf, Buffer.concat(output))
+      t.end()
+    })
 })
 
-test('start, end', function (t) {
-  var buf = Buffer('Hello cruel world')
-  var stream = Stream(ram(buf), { start: 1, end: buf.length - 1 })
-  collect(stream, function (err, _buf) {
-    t.error(err)
-    t.deepEqual(_buf, buf.slice(1, buf.length - 1))
-    t.end()
-  })
+tape('bigger buf and start', function (t) {
+  const buf = Buffer.alloc(20 * 65536).fill('abc')
+  const st = ram(buf)
+  const output = []
+
+  createStream(st, {start: 5555})
+    .on('data', function (data) {
+      output.push(data)
+    })
+    .on('end', function () {
+      t.same(buf.slice(5555), Buffer.concat(output))
+      t.end()
+    })
 })
 
+tape('bigger buf and start and end', function (t) {
+  const buf = Buffer.alloc(20 * 65536).fill('abc')
+  const st = ram(buf)
+  const output = []
+
+  createStream(st, {start: 5555, end: 6666})
+    .on('data', function (data) {
+      output.push(data)
+    })
+    .on('end', function () {
+      t.same(buf.slice(5555, 6666), Buffer.concat(output))
+      t.end()
+    })
+})
