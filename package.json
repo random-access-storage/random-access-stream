@@ -1,7 +1,7 @@
 {
   "name": "random-access-stream",
   "description": "Consume a random-access storage as a readable stream",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "repository": "randoma-acces-storage/random-access-stream",
   "license": "MIT",
   "scripts": {
